@@ -65,18 +65,28 @@
         }
         var self = this;
         required = _.isUndefined(required) ? true : required;
+        // specific null default value means we don't want any node... implicit null (no default at all) means we go with null
+        if (obj.default === null) {
+            return undefined;
+        }
+
         if (obj.type === 'object') {
             var resulting = {};
             _.each(obj.properties, function(prop, key, obj) {
                 var objRequired = obj.required && obj.required.indexOf(key) >= 0;
                 var propValue = self.generateObject(prop, objRequired);
-                resulting[key] = propValue;
+
+                // generate no node for specifically nulled properties
+                if (!_.isUndefined(propValue)) {
+                    resulting[key] = propValue;
+                }
             });
             return resulting;
         } else {
+
             return obj.default ?
                 obj.default
-                : (required ? self.defaultFor(obj.type) : null);
+                : null;
         }
     };
 
