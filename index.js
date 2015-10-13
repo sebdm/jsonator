@@ -84,7 +84,7 @@
             return resulting;
         } else {
 
-            return obj.default || obj.default === false ?
+            return obj.default != null ?
                 obj.default
                 : null;
         }
