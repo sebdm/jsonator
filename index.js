@@ -1,5 +1,5 @@
-/* Expand $refs in json schema, generates "empty object" json from json schema.
- * Does not implement the full json schema standard. Work in progress.
+/* Expand $refs in json schema, generate "empty object" json from json schema.
+ * Specifically implemented for config schemas.
  * @author slind
  */
 (function(definition) {
@@ -59,10 +59,13 @@
         return this.generateObject(this.expandedSchema);
     };
 
-    Jsonator.prototype.generateObject = function(obj, required) {
+    Jsonator.prototype.generateObject = function(obj, required, path) {
         if (!obj) {
             return null;
         }
+
+        path = path || '';
+
         var self = this;
         required = _.isUndefined(required) ? true : required;
         // specific null default value means we don't want any node... implicit null (no default at all) means we go with null
@@ -73,8 +76,15 @@
         if (obj.type === 'object') {
             var resulting = {};
             _.each(obj.properties, function(prop, key, obj) {
+                if (path.indexOf('components') === 0) {
+                    if (['settings', 'labels', 'components'].indexOf(key) >= 0) {
+                        // don't emit any settings/labels/components nodes for child components
+                        return null;
+                    }
+                }
+
                 var objRequired = obj.required && obj.required.indexOf(key) >= 0;
-                var propValue = self.generateObject(prop, objRequired);
+                var propValue = self.generateObject(prop, objRequired, path ? path + '.' + key : key);
 
                 // generate no node for specifically nulled properties
                 if (!_.isUndefined(propValue)) {
