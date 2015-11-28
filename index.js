@@ -77,7 +77,7 @@
             var resulting = {};
             _.each(obj.properties, function(prop, key, obj) {
                 if (path.indexOf('components') === 0) {
-                    if (['settings', 'labels', 'components'].indexOf(key) >= 0) {
+                    if (['settings', 'labels'].indexOf(key) >= 0) {
                         // don't emit any settings/labels/components nodes for child components
                         return null;
                     }
